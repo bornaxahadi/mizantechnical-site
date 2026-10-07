@@ -131,6 +131,88 @@ SCRIPT = """<script>
 </script>"""
 
 
+# ---------------------------------------------------------------- speed: images and CSS
+VARIANT_WIDTHS = (400, 800, 1200, 1600)
+DEFAULT_SIZES = "(max-width: 760px) 100vw, 560px"
+_dims = {}
+
+
+def image_variants(stem):
+    """AVIF + WebP copies of img/<stem>.jpg at several widths in img/v/. Returns (widths, w, h)."""
+    if stem in _dims:
+        return _dims[stem]
+    src = ROOT_DIR / "img" / f"{stem}.jpg"
+    try:
+        from PIL import Image
+    except ImportError:  # CI without Pillow: reuse the committed variants
+        Image = None
+    vdir = ROOT_DIR / "img/v"
+    if Image:
+        im = Image.open(src).convert("RGB")
+        w, h = im.size
+        widths = [x for x in VARIANT_WIDTHS if x < w] + [w]
+        vdir.mkdir(exist_ok=True)
+        for x in widths:
+            for ext, opts in (("avif", {"quality": 55}), ("webp", {"quality": 76, "method": 6})):
+                out = vdir / f"{stem}-{x}.{ext}"
+                if out.exists() and out.stat().st_mtime >= src.stat().st_mtime:
+                    continue
+                im.resize((x, round(h * x / w)), Image.LANCZOS).save(out, **opts)
+    else:
+        found = sorted(int(p.stem.rsplit("-", 1)[1]) for p in vdir.glob(f"{stem}-*.webp"))
+        widths, w = found, found[-1]
+        h = round(w * 3 / 4)
+    _dims[stem] = (widths, w, h)
+    return _dims[stem]
+
+
+LOCAL_IMG = re.compile(r'(?:<picture>)?(?:<source srcset="[^"]*" type="image/webp">)?<img src="((?:\.\./)*)img/([\w-]+)\.jpg"([^>]*)>(?:</picture>)?')
+STOCK_IMG = re.compile(r'<img src="(https://images\.unsplash\.com/[^"?]+)\?[^"]*"([^>]*)>')
+
+
+def responsive(page):
+    def local(m):
+        r, stem, attrs = m.groups()
+        sizes = re.search(r' data-sz="([^"]*)"', attrs)
+        attrs = re.sub(r' data-sz="[^"]*"', "", attrs)
+        sizes = sizes.group(1) if sizes else DEFAULT_SIZES
+        widths, w, h = image_variants(stem)
+        srcs = lambda ext: ", ".join(f"{r}img/v/{stem}-{x}.{ext} {x}w" for x in widths)
+        if "width=" not in attrs:
+            attrs += f' width="{w}" height="{h}"'
+        if "decoding=" not in attrs:
+            attrs += ' decoding="async"'
+        return (f'<picture><source type="image/avif" srcset="{srcs("avif")}" sizes="{sizes}">'
+                f'<source type="image/webp" srcset="{srcs("webp")}" sizes="{sizes}">'
+                f'<img src="{r}img/{stem}.jpg"{attrs}></picture>')
+
+    def stock(m):
+        base, attrs = m.groups()
+        sizes = re.search(r' data-sz="([^"]*)"', attrs)
+        attrs = re.sub(r' data-sz="[^"]*"', "", attrs)
+        sizes = sizes.group(1) if sizes else DEFAULT_SIZES
+        u = lambda x: e(f"{base}?auto=format&fit=crop&w={x}&q=70")
+        dec = "" if "decoding=" in attrs else ' decoding="async"'
+        srcset = ", ".join(f"{u(x)} {x}w" for x in (480, 800, 1200, 1600))
+        return f'<img src="{u(1200)}" srcset="{srcset}" sizes="{sizes}"{attrs}{dec}>'
+    return STOCK_IMG.sub(stock, LOCAL_IMG.sub(local, page))
+
+
+def inline_css(r):
+    """The whole stylesheet is small, so it goes inline: no render-blocking request."""
+    css = (ROOT_DIR / "assets/site.min.css").read_text(encoding="utf-8")
+    return css.replace("url(fonts/", f"url({r}assets/fonts/")
+
+
+def minify_css():
+    css = (ROOT_DIR / "assets/site.css").read_text(encoding="utf-8")
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"\s+", " ", css)
+    css = re.sub(r"\s*([{};,>])\s*", r"\1", css)
+    css = css.replace(";}", "}")
+    (ROOT_DIR / "assets/site.min.css").write_text(css.strip(), encoding="utf-8")
+
+
 def lang_switch(r, cur="en"):
     links = [("en", "EN", "English", r or "./")] + [(k, v["short"], v["name"], f"{r}{k}/") for k, v in i18n.LANGS.items()]
     return ('<nav class="langsw" aria-label="Language">' + "".join(
@@ -174,10 +256,10 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
 <link rel="icon" href="{r}favicon.ico" sizes="48x48">
 <link rel="icon" href="{r}favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{r}apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="{r}assets/site.css">
+<link rel="preload" href="{r}assets/fonts/anton-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{r}assets/fonts/archivo-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{r}assets/fonts/archivo-700.woff2" as="font" type="font/woff2" crossorigin>
+<style>{inline_css(r)}</style>
 {ld}
 </head>
 <body>
@@ -193,7 +275,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
       <a href="{nav_prefix}#request">Hire Mizan</a>
     </nav>
     {lang_switch(r)}
-    <a class="btn btn-navy" href="tel:{S.PHONE}">{PHONE_ICON}<span>Call Mizan</span></a>
+    <a class="btn btn-navy" href="tel:{S.PHONE}" aria-label="Call Mizan">{PHONE_ICON}<span>Call Mizan</span></a>
   </div>
 </header>
 
@@ -218,11 +300,11 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
         <a class="qr" href="{S.WA}" target="_blank" rel="noopener"><img src="{r}img/whatsapp-qr.svg" alt="QR code to chat with Mizan on WhatsApp" width="96" height="96" loading="lazy"><span>Scan to chat<br>on WhatsApp</span></a>
       </div>
       <div>
-        <h4>Services</h4>
+        <h2 class="foot-h">Services</h2>
         <ul>{services_links}</ul>
       </div>
       <div>
-        <h4>Links</h4>
+        <h2 class="foot-h">Links</h2>
         <ul>
           <li><a href="{r}gallery/">Work gallery</a></li>
           <li><a href="{r}tips/">Tips &amp; guides</a></li>
@@ -246,6 +328,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
 </body>
 </html>
 """
+    page = responsive(page)
     write(path, page)
     register(path, page, priority, lastmod)
 
@@ -288,7 +371,7 @@ def img_abs(v):
 
 def page_hero(h1, text, image, alt, wa_text):
     return f"""<section class="hero"><div class="wrap"><div class="page-hero">
-  <div class="ph"><img src="{image}" alt="{e(alt)}" fetchpriority="high"></div>
+  <div class="ph"><img src="{image}" alt="{e(alt)}" fetchpriority="high" data-sz="(max-width: 1200px) 100vw, 1160px"></div>
   <span class="kicker" style="color:var(--amber)">{e(S.SLOGAN)}</span>
   <h1>{e(h1)}</h1>
   <p>{e(text)}</p>
@@ -337,13 +420,13 @@ def related_tips(r, service_slug):
 
 # ---------------------------------------------------------------- pages
 # ---------------------------------------------------------------- work photos
-def picture(r, stem, alt, attrs='loading="lazy"'):
+def picture(r, stem, alt, attrs='loading="lazy"', sizes=DEFAULT_SIZES):
     return (f'<picture><source srcset="{r}img/{stem}.webp" type="image/webp">'
-            f'<img src="{r}img/{stem}.jpg" alt="{e(alt)}" {attrs}></picture>')
+            f'<img src="{r}img/{stem}.jpg" alt="{e(alt)}" {attrs} data-sz="{sizes}"></picture>')
 
 
 def carousel(r):
-    items = "".join(f'<li><a href="{r}gallery/#{stem}">{picture(r, stem, alt)}<span>{e(cap)}</span></a></li>'
+    items = "".join(f'<li><a href="{r}gallery/#{stem}">{picture(r, stem, alt, sizes="(max-width: 700px) 78vw, 360px")}<span>{e(cap)}</span></a></li>'
                     for stem, alt, cap, _ in S.GALLERY)
     return f"""      <div class="car">
         <button class="car-btn prev" type="button" aria-label="Previous photos">&#8249;</button>
@@ -388,7 +471,7 @@ def build_gallery():
     filters = '<button type="button" data-cat="all" aria-pressed="true">All</button>' + "".join(
         f'<button type="button" data-cat="{e(c)}" aria-pressed="false">{e(c)}</button>' for c in cats)
     figs = "".join(f'<figure id="{stem}" data-cat="{e(cat)}"><button type="button" aria-label="Enlarge: {e(cap)}">'
-                   f'{picture(r, stem, alt)}</button><figcaption>{e(cap)}</figcaption></figure>'
+                   f'{picture(r, stem, alt, sizes="(max-width: 700px) 100vw, 380px")}</button><figcaption>{e(cap)}</figcaption></figure>'
                    for stem, alt, cap, cat in S.GALLERY)
     wa = wa_link("Hello Mizan, I saw your work on your website and need a technician. My location: ")
     content = f"""{crumbs(r, [('Our work', path)])}
@@ -430,7 +513,7 @@ def build_service(s):
     bullets = "".join(f"<li>{e(b)}</li>" for b in s["bullets"])
     body_secs = "".join(f"<h2>{e(h)}</h2><p>{e(p)}</p>" for h, p in s["body"])
     content = f"""{crumbs(r, [(s['short'], path)])}
-{page_hero(s['h1'], s['intro'], img_src(r, S.IMG[s['img']]), s['h1'], wa)}
+{page_hero(s['h1'], s['intro'], img_src(r, S.IMG[s['img']]), S.IMG_ALT[s['img']], wa)}
 <section class="sec"><div class="wrap split">
   <article class="prose">
     <h2>What we do</h2>
@@ -459,7 +542,7 @@ def build_area(a):
     wa = f"Hello Mizan, I need a technician in {a['name']}. The job: "
     cards = "".join(f'<li><a href="{r}{s["slug"]}/">{e(s["short"])} in {e(a["name"])}</a></li>' for s in S.SERVICES)
     content = f"""{crumbs(r, [('Areas', '../../#areas'), (a['name'], path)])}
-{page_hero(f"Technician in {a['name']}", a['blurb'], S.IMG['dubai'], f"{a['name']}, Dubai", wa)}
+{page_hero(f"Technician in {a['name']}", a['blurb'], S.IMG['dubai'], f"Dubai city skyline: Mizan's team covers {a['name']}", wa)}
 <section class="sec"><div class="wrap split">
   <article class="prose">
     <h2>Services in {e(a['name'])}</h2>
@@ -534,7 +617,7 @@ def build_tips():
 def build_404():
     (OUT / "404.html").write_text(f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Page not found | {e(S.NAME)}</title><meta name="robots" content="noindex">
-<link rel="stylesheet" href="/assets/site.css"></head><body><main class="wrap" style="padding-block:80px;display:grid;gap:18px">
+<link rel="stylesheet" href="/assets/site.min.css"></head><body><main class="wrap" style="padding-block:80px;display:grid;gap:18px">
 <h1 style="font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:3rem">This page is broken. Mizan can't fix this one.</h1>
 <p>But he can fix almost everything else. <a href="/">Go to the home page</a> or WhatsApp <strong>{S.PHONE_PRETTY}</strong>.</p></main><script src="/assets/chat.js" defer></script></body></html>
 """, encoding="utf-8")
@@ -571,10 +654,9 @@ def build_home_lang(code):
         page = "".join(x if x.startswith(("<script", "<head>")) else re.sub(
             r">([^<]*)<", lambda m: ">" + re.sub(r"\u200e?(\+971 5\d \d{3} \d{4})", r'<bdi dir="ltr">\1</bdi>', m.group(1)) + "<", x)
             for x in parts)
-    font = "Noto+Sans+Arabic:wght@400;500;600;700;800" if L["dir"] == "rtl" else "Hind:wght@400;500;600;700"
-    page = page.replace('<link rel="stylesheet" href="../assets/site.css">',
-                        f'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={font}&display=swap">\n'
-                        '<link rel="stylesheet" href="../assets/site.css">', 1)
+    font = "noto-arabic-400" if L["dir"] == "rtl" else "hind-400"
+    page = page.replace("url(assets/fonts/", "url(../assets/fonts/")
+    page = page.replace("<style>", f'<link rel="preload" href="../assets/fonts/{font}.woff2" as="font" type="font/woff2" crossorigin>\n<style>', 1)
     chat = dict(i18n.CHAT[code], chips={k: v[idx] for k, v in i18n.CHIPS.items()})
     page = page.replace('<script src="../assets/chat.js" defer></script>',
                         f"<script>window.MTM_I18N={json.dumps(chat, ensure_ascii=False)}</script>\n"
@@ -665,6 +747,7 @@ def seo_check():
 def main():
     if "--publish-next" in sys.argv:
         publish_next()
+    minify_css()
     build_gallery()
     build_home()
     for code in i18n.LANGS:

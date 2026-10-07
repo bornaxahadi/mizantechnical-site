@@ -26,7 +26,9 @@ skip_hosts = {"wa.me", "www.google.com", "search.google.com", "www.facebook.com"
 for page in pages:
     html = page.read_text()
     rel = page.relative_to(ROOT)
-    for attr, url in re.findall(r'(href|src|srcset)="([^"]+)"', html):
+    refs = [(a, v) for a, v in re.findall(r'(href|src)="([^"]+)"', html)]
+    refs += [("srcset", x.strip().split(" ")[0]) for v in re.findall(r'srcset="([^"]+)"', html) for x in v.split(", ")]
+    for attr, url in refs:
         u = urlparse(url)
         if u.scheme in ("http", "https"):
             check(u.hostname in skip_hosts, f"{rel}: unexpected external {url}")
@@ -64,6 +66,35 @@ check("Sitemap: https://mizantechnical.site/sitemap.xml" in (ROOT / "robots.txt"
 for f in ("favicon.ico", "favicon.svg", "apple-touch-icon.png", "CNAME", ".nojekyll"):
     check((ROOT / f).exists(), f"{f} present")
 check((ROOT / "CNAME").read_text().strip() == "mizantechnical.site", "CNAME is mizantechnical.site")
+
+import xml.dom.minidom
+for svg in ROOT.glob("**/*.svg"):
+    if "node_modules" in svg.parts or ".git" in svg.parts:
+        continue
+    try:
+        xml.dom.minidom.parse(str(svg)); ok = True
+    except Exception:
+        ok = False
+    check(ok, f"{svg.relative_to(ROOT)} is valid SVG")
+
+# ---------------------------------------------------------------- speed and alt text
+for page in pages:
+    html = page.read_text()
+    rel = page.relative_to(ROOT)
+    check("fonts.googleapis.com" not in html, f"{rel}: fonts are self-hosted")
+    for img in re.findall(r"<img [^>]*>", html):
+        if 'src="data:,"' in img:
+            continue  # photo viewer placeholder, filled by script
+        alt = re.search(r'alt="([^"]*)"', img)
+        check(alt and len(alt.group(1)) >= 8, f"{rel}: descriptive alt text on {img[:80]}")
+        if "fetchpriority" not in img and "img/whatsapp-qr" not in img:
+            check('loading="lazy"' in img, f"{rel}: below-the-fold image is lazy {img[:80]}")
+        if "/img/" in img or 'src="img/' in img or 'src="../img/' in img or 'src="../../img/' in img:
+            check('width="' in img and 'height="' in img, f"{rel}: image has width and height {img[:80]}")
+    for m in re.finditer(r"<img [^>]*src=\"(?:\.\./)*img/(?:v/)?[\w-]+\.jpg\"", html):
+        start = html.rfind("<picture>", 0, m.start())
+        check(start != -1 and 'type="image/avif"' in html[start:m.start()], f"{rel}: photo served as AVIF/WebP")
+check(len((ROOT / "assets/site.min.css").read_text()) < len((ROOT / "assets/site.css").read_text()), "CSS is minified")
 
 # ---------------------------------------------------------------- languages
 LANG_DIR = {"ar": "rtl", "ur": "rtl", "hi": "ltr"}

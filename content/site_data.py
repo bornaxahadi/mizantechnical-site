@@ -29,7 +29,7 @@ def img(photo_id, w=1600):
 
 
 IMG = {
-    "panel": img("photo-1758101755915-462eddc23f57"),
+    "panel": "img/work-db-boards.jpg",
     "screwdriver": img("photo-1660330589693-99889d60181e"),
     "plumbing": img("photo-1676210133055-eab6ef033ce3"),
     "cctv": img("photo-1557597774-9d273605dfa9"),
@@ -44,6 +44,21 @@ IMG = {
     "boardroom": "img/work-boardroom.jpg",
     "ledwall": "img/work-led-wall.jpg",
     "dubai": img("photo-1651467606797-e1c660cf3fda"),
+}
+
+# Describes what is actually in each photo (used as alt text on page heroes)
+IMG_ALT = {
+    "panel": "Electrical distribution boards wired by Mizan's team on a Dubai job",
+    "cctv": "CCTV security cameras mounted on a building wall",
+    "wires": "Colour-coded wiring inside an electrical switch box",
+    "rack": "Mizan cabling a network rack on an office fit-out in Dubai",
+    "rack2": "Network cables bundled and dressed inside a server rack by Mizan",
+    "db": "Distribution board wired and labelled by Mizan's team",
+    "reader": "Access control reader and network cabinet installed on an office wall",
+    "intercom": "Video door intercom installed by Mizan at a villa gate",
+    "boardroom": "Boardroom table fitted with power and data points for an office",
+    "ledwall": "Curved LED feature wall lighting fitted by Mizan's team",
+    "dubai": "Dubai city skyline",
 }
 
 # Each service becomes /<slug>/. Keep claims factual: no prices, no warranties, no
