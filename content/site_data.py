@@ -37,6 +37,12 @@ IMG = {
     "drill": img("photo-1562259929-b4e1fd3aef09"),
     "tools": img("photo-1581783898377-1c85bf937427"),
     "rack": "img/work-rack.jpg",
+    "rack2": "img/work-rack-dressing.jpg",
+    "db": "img/work-db-board.jpg",
+    "reader": "img/work-access-reader.jpg",
+    "intercom": "img/work-door-intercom.jpg",
+    "boardroom": "img/work-boardroom.jpg",
+    "ledwall": "img/work-led-wall.jpg",
     "dubai": img("photo-1651467606797-e1c660cf3fda"),
 }
 
@@ -96,7 +102,7 @@ SERVICES = [
         "title": "Wi-Fi & Network Installation in Dubai | Cabling & Setup",
         "h1": "Wi-Fi and network installation in Dubai",
         "desc": "Fix weak Wi-Fi and slow networks. Structured cabling, routers, switches and access points for homes and offices in Dubai. Call or WhatsApp MTM Group Tech.",
-        "img": "wires",
+        "img": "rack2",
         "intro": "Dead zones, dropping connections and slow office internet are usually a layout or cabling problem, not the internet package. We find where the signal fails and fix it with proper cabling and well-placed access points.",
         "bullets": ["Structured cabling (LAN and network cabling) and patch panels", "Router, switch and Wi-Fi configuration and management", "Whole-home and whole-office Wi-Fi coverage", "Mesh systems for villas and multi-floor homes", "LAN, WAN, VLAN and VPN setup and troubleshooting", "Connecting CCTV, printers and phones to the network"],
         "body": [
@@ -114,7 +120,7 @@ SERVICES = [
         "title": "Access Control & Biometric Systems in Dubai | Installation",
         "h1": "Access control and biometric systems in Dubai",
         "desc": "Fingerprint, face and card access control, door locks and attendance machines installed and serviced in Dubai. Call or WhatsApp MTM Group Tech.",
-        "img": "screwdriver",
+        "img": "reader",
         "intro": "Control who enters your office, building or store room, and record staff attendance automatically. We install the reader, the lock and the controller, and set up the users for you.",
         "bullets": ["Fingerprint and face-recognition readers", "Card and keypad door access", "Magnetic and electric strike locks", "Time-attendance installation, reports and support", "Exit buttons and emergency release", "Repair and re-programming of existing systems"],
         "body": [
@@ -131,7 +137,7 @@ SERVICES = [
         "title": "PABX, VoIP, Intercom & IP Phone Installation in Dubai",
         "h1": "PABX, intercom and IP phones in Dubai",
         "desc": "Office PABX telephone systems, IP phones, door and video intercoms installed, programmed and repaired in Dubai. Call or WhatsApp MTM Group Tech.",
-        "img": "tools",
+        "img": "intercom",
         "intro": "From a small office that needs extensions and call transfer to a villa that needs a video intercom at the gate, we install, wire and program the system so it works the way you need.",
         "bullets": ["PABX installation and programming", "IP telephone (VoIP) installation and configuration", "Extension wiring and moves", "Door intercom and video intercom", "Gate and villa intercoms", "Fault finding and repair"],
         "body": [],
@@ -146,7 +152,7 @@ SERVICES = [
         "title": "IT Support & Computer Repair in Dubai | On-site Service",
         "h1": "IT support and computer repair in Dubai",
         "desc": "On-site IT support in Dubai: computer and laptop repair, slow PCs, printers, software, email and office network problems. Call or WhatsApp MTM Group Tech.",
-        "img": "panel",
+        "img": "boardroom",
         "intro": "When a computer, printer or office system stops working, business stops too. We come to your home or office, find the problem and fix it on site where possible.",
         "bullets": ["Computer and laptop troubleshooting", "Slow computers, viruses and clean-ups", "Printer and scanner setup", "Software and email setup", "Office network and shared folders", "On-site and remote IT support"],
         "body": [],
@@ -161,7 +167,7 @@ SERVICES = [
         "title": "Electrician in Dubai | Electrical Installation & Repair",
         "h1": "Electrician in Dubai",
         "desc": "Electrical repairs and installation in Dubai: sockets, switches, lights, DB boards, tripping breakers and new points. Call or WhatsApp Mizan for an electrician.",
-        "img": "screwdriver",
+        "img": "db",
         "intro": "Tripping breakers, dead sockets, flickering lights or a new point where you need it. We find the fault safely and fix it properly.",
         "bullets": ["Socket, switch and light installation", "Breakers that keep tripping", "Distribution board (DB) work", "New power points and wiring", "Light fittings and fans", "Electrical maintenance for shops and offices"],
         "body": [
@@ -192,7 +198,7 @@ SERVICES = [
         "title": "Handyman & Maintenance Services in Dubai | Home & Office",
         "h1": "Handyman and maintenance in Dubai",
         "desc": "Reliable handyman and maintenance in Dubai for homes and offices: fixing, fitting, mounting and regular maintenance visits. One call, Mizan will fix it.",
-        "img": "plumbing",
+        "img": "ledwall",
         "intro": "Not sure who to call? If something technical at home or in the office is broken, send a photo. Mizan will tell you if we can fix it, and in most cases we can.",
         "bullets": ["General repairs at home and in the office", "Fitting and mounting (TVs, shelves, fixtures)", "Small fixes before moving in or out", "Regular maintenance visits", "Shop and office maintenance", "One contact for many small jobs"],
         "body": [
