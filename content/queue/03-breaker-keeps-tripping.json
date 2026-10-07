@@ -1,0 +1,40 @@
+{
+ "slug": "breaker-keeps-tripping",
+ "title": "Why does my breaker keep tripping?",
+ "description": "The common reasons a circuit breaker keeps tripping in Dubai homes and offices, and when to call an electrician.",
+ "service": "electrician-dubai",
+ "body": [
+  [
+   "p",
+   "A breaker that trips again and again is doing its job: it is protecting the circuit. The question is what is causing it."
+  ],
+  [
+   "h2",
+   "Overloaded circuit"
+  ],
+  [
+   "p",
+   "Too many high-power appliances on one circuit, such as kettles, heaters and irons, can trip the breaker. Spread them across different sockets and circuits."
+  ],
+  [
+   "h2",
+   "A faulty appliance"
+  ],
+  [
+   "p",
+   "Unplug everything on that circuit, reset the breaker, then plug items back in one at a time. If it trips when a particular appliance is connected, that appliance is likely the problem."
+  ],
+  [
+   "h2",
+   "Earth leakage (RCD trips)"
+  ],
+  [
+   "p",
+   "If the RCD trips, there may be moisture or damaged wiring, often in outdoor lights, bathrooms or water heaters. This needs an electrician."
+  ],
+  [
+   "p",
+   "If you smell burning or see scorch marks, switch off at the board and call us. Do not keep resetting the breaker."
+  ]
+ ]
+}

@@ -1,0 +1,39 @@
+name: Daily SEO
+
+# Runs every day at 06:00 Dubai time (02:00 UTC):
+#  1. publishes the next tips article waiting in content/queue (if any)
+#  2. rebuilds every page, sitemap.xml and robots.txt
+#  3. runs the SEO health check (titles, descriptions, one h1, canonical,
+#     image alt text, valid schema, broken internal links)
+#  4. commits the changes, which GitHub Pages then publishes
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Publish next article, rebuild, check SEO
+        run: python3 build.py --publish-next --check
+      - name: Test links, schema, sitemap and phone/WhatsApp/email links
+        run: python3 tests/site_test.py
+      - name: Commit changes
+        run: |
+          git config user.name "mizan-seo-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing changed today."
+          else
+            git commit -m "Daily SEO update $(date -u +%F)"
+            git push
+          fi

@@ -1,0 +1,44 @@
+{
+ "slug": "cctv-no-remote-view-after-router-change",
+ "title": "CCTV app stopped working after a new router?",
+ "description": "Why your CCTV phone app goes offline after a router change in Dubai, and the simple checks that bring live view back.",
+ "service": "cctv-installation-dubai",
+ "body": [
+  [
+   "p",
+   "One of the most common CCTV calls in Dubai: the internet provider swapped the router, and now the camera app on your phone says the device is offline. The cameras are usually fine. The recorder just lost its way to the internet."
+  ],
+  [
+   "h2",
+   "Check the recorder is on the new network"
+  ],
+  [
+   "p",
+   "The recorder (NVR or DVR) is plugged into the router with a network cable. If the new router uses a different address range, the recorder may still be using its old address. Setting it to get an address automatically, or giving it a fixed one in the new range, usually fixes it."
+  ],
+  [
+   "h2",
+   "Check the cable and the port"
+  ],
+  [
+   "p",
+   "After a router swap, cables often end up in the wrong port or are not pushed in fully. The link light next to the recorder's network port should be on."
+  ],
+  [
+   "h2",
+   "Re-add the device in the app"
+  ],
+  [
+   "p",
+   "Most recorders connect to the app through a cloud ID. Once the recorder is back online, the app often reconnects by itself; if not, scanning the recorder's QR code again does it."
+  ],
+  [
+   "h2",
+   "When to call a technician"
+  ],
+  [
+   "p",
+   "If the recorder shows no network at all, the hard disk shows an error, or you do not have the recorder's password, send a photo of the recorder and the error on WhatsApp and Mizan will tell you what is needed."
+  ]
+ ]
+}

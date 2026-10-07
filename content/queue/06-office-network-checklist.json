@@ -1,0 +1,48 @@
+{
+ "slug": "office-network-checklist",
+ "title": "Office network checklist for small businesses",
+ "description": "A short checklist to keep a small office network in Dubai fast, tidy and secure.",
+ "service": "structured-cabling-dubai",
+ "body": [
+  [
+   "p",
+   "Small offices often grow one cable and one device at a time until nobody knows what connects to what. Use this checklist."
+  ],
+  [
+   "h2",
+   "Label every cable"
+  ],
+  [
+   "p",
+   "Labelled cables and patch panels turn a two-hour fault hunt into a five-minute fix."
+  ],
+  [
+   "h2",
+   "Separate guest Wi-Fi"
+  ],
+  [
+   "p",
+   "Visitors should not be on the same network as your computers, printers and CCTV."
+  ],
+  [
+   "h2",
+   "Change default passwords"
+  ],
+  [
+   "p",
+   "Routers, recorders and printers often ship with default passwords. Change them."
+  ],
+  [
+   "h2",
+   "Keep the rack cool"
+  ],
+  [
+   "p",
+   "Network equipment in a hot cupboard fails sooner. Make sure there is airflow."
+  ],
+  [
+   "p",
+   "Want a tidy-up of your office network? Message us on WhatsApp."
+  ]
+ ]
+}

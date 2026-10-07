@@ -1,0 +1,57 @@
+{
+ "slug": "cctv-not-recording-what-to-check",
+ "title": "CCTV not recording? 5 things to check first",
+ "description": "If your CCTV system stopped recording in Dubai, check these five things before you call a technician.",
+ "service": "cctv-installation-dubai",
+ "body": [
+  [
+   "p",
+   "A CCTV system that has quietly stopped recording is one of the most common calls we get. The cameras still show a live picture, but when you need yesterday's footage, there is nothing there. Here is what to check."
+  ],
+  [
+   "h2",
+   "1. Is the hard disk detected?"
+  ],
+  [
+   "p",
+   "Open the recorder menu and look for the storage or HDD page. If the disk shows as 'uninitialised', 'error' or is missing, the recorder has nothing to record to. Hard disks wear out, especially in hot rooms."
+  ],
+  [
+   "h2",
+   "2. Is recording actually switched on?"
+  ],
+  [
+   "p",
+   "After a power cut or a reset, some recorders return to default settings with recording turned off or set to motion only. Check the recording schedule for each camera."
+  ],
+  [
+   "h2",
+   "3. Is the disk full with overwrite off?"
+  ],
+  [
+   "p",
+   "If 'overwrite' is disabled, recording stops when the disk fills. Turn overwrite on so old footage is replaced automatically."
+  ],
+  [
+   "h2",
+   "4. Is the date and time correct?"
+  ],
+  [
+   "p",
+   "A wrong date makes footage look missing when it is just filed under the wrong day."
+  ],
+  [
+   "h2",
+   "5. Is the recorder overheating?"
+  ],
+  [
+   "p",
+   "Recorders in closed cabinets without airflow can freeze or restart. Give it space and ventilation."
+  ],
+  [
+   "p",
+   "Still not working? Send a photo of the recorder screen on WhatsApp and Mizan will tell you what is needed."
+  ]
+ ],
+ "date": "2026-10-07"
+}
