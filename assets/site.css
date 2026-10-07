@@ -488,3 +488,23 @@ html[lang=ar] .hero h1,html[lang=ur] .hero h1,html[lang=hi] .hero h1{font-size:c
 @media (min-width:601px) and (max-width:960px){.svc-grid .svc.plain{grid-column:1/-1}}
 
 .meet .langs b{color:#b4530a}
+
+/* v18 language menu: inline on desktop, globe dropdown on phones */
+.langwrap{margin-inline-start:auto;position:relative}
+.langwrap .langsw{margin:0}
+.langdd{display:none;position:relative}
+.langdd summary{list-style:none;display:flex;align-items:center;gap:6px;padding:9px 12px;border:1px solid var(--line);border-radius:999px;font-weight:700;font-size:.85rem;color:var(--navy);cursor:pointer;background:var(--surface,#fff)}
+.langdd summary::-webkit-details-marker{display:none}
+.langdd summary::after{content:"";width:7px;height:7px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-inline-start:2px}
+.langdd[open] summary::after{transform:rotate(-135deg) translateY(-1px)}
+.langdd nav{position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:40;min-width:150px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(10,47,79,.18);padding:6px;display:grid}
+.langdd nav a{padding:10px 12px;border-radius:9px;text-decoration:none;color:var(--ink);font-weight:600}
+.langdd nav a:hover{background:var(--tone,#eef4f8)}
+.langdd nav a[aria-current]{background:var(--navy);color:#fff}
+@media (max-width:640px){
+  .top .wrap{flex-wrap:nowrap;row-gap:0}
+  .langwrap .langsw{display:none}
+  .langdd{display:block}
+  .top .logo{max-width:none;min-width:0;flex:1}
+  .top .logo small{display:none}
+}

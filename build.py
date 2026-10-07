@@ -126,6 +126,7 @@ SCRIPT = """<script>
     c.querySelector('.prev').addEventListener('click',function(){go(-1)});
     c.querySelector('.next').addEventListener('click',function(){go(1)});
   });
+  document.addEventListener('click',function(ev){[].forEach.call(document.querySelectorAll('.langdd[open]'),function(d){if(!d.contains(ev.target))d.open=false})});
   var y=document.getElementById('yr');if(y)y.textContent=new Date().getFullYear();
 })();
 </script>"""
@@ -214,10 +215,18 @@ def minify_css():
 
 
 def lang_switch(r, cur="en"):
+    """Inline language bar on desktop; a globe dropdown on phones."""
     links = [("en", "EN", "English", r or "./")] + [(k, v["short"], v["name"], f"{r}{k}/") for k, v in i18n.LANGS.items()]
-    return ('<nav class="langsw" aria-label="Language">' + "".join(
-        f'<a href="{h}" hreflang="{k}" lang="{k}" title="{n}"{" aria-current=\"true\"" if k == cur else ""}>{lab}</a>'
-        for k, lab, n, h in links) + "</nav>")
+    items = "".join(f'<a href="{h}" hreflang="{k}" lang="{k}" title="{n}"{" aria-current=\"true\"" if k == cur else ""}>{lab}</a>'
+                    for k, lab, n, h in links)
+    names = "".join(f'<a href="{h}" hreflang="{k}" lang="{k}"{" aria-current=\"true\"" if k == cur else ""}>{n}</a>'
+                    for k, lab, n, h in links)
+    label = next(lab for k, lab, n, h in links if k == cur)
+    globe = ('<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">'
+             '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>')
+    return (f'<div class="langwrap"><nav class="langsw" aria-label="Language">{items}</nav>'
+            f'<details class="langdd"><summary aria-label="Language">{globe}<span>{label}</span></summary>'
+            f'<nav aria-label="Language">{names}</nav></details></div>')
 
 
 def hreflang_links():
@@ -641,7 +650,7 @@ def build_home_lang(code):
     page = REL_URL.sub(lambda m: m.group(1) + "../" + m.group(2) + '"', page)
     page = re.sub(r'srcset="([^"]+)"', lambda m: 'srcset="' + ", ".join(
         x if x.startswith(("http", "/")) else "../" + x for x in m.group(1).split(", ")) + '"', page)
-    page = re.sub(r'<nav class="langsw".*?</nav>', lang_switch("../", code), page, count=1, flags=re.S)
+    page = re.sub(r'<div class="langwrap">.*?</details></div>', lambda m: lang_switch("../", code), page, count=1, flags=re.S)
     # form options keep the English value so Mizan's WhatsApp message stays readable
     page = re.sub(r"<option>(.*?)</option>", lambda m: f'<option value="{m.group(1)}">{m.group(1)}</option>', page)
     for en in sorted(i18n.T, key=len, reverse=True):

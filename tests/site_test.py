@@ -205,6 +205,16 @@ if sync_playwright:
         vis = pg.evaluate("[...document.querySelectorAll('.gal figure')].filter(f=>!f.hidden).map(f=>f.dataset.cat)")
         check(vis and set(vis) == {"Electrical"}, "gallery filter shows only that category")
         ctx.close()
+        # phone: languages sit in a dropdown, not an inline bar
+        ctx = b.new_context(viewport={"width": 375, "height": 800})
+        ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*"), lambda r: r.abort())
+        pg = ctx.new_page(); pg.goto(base)
+        check(not pg.is_visible(".langwrap .langsw") and pg.is_visible(".langdd summary"), "phone shows the language dropdown instead of the bar")
+        pg.click(".langdd summary"); pg.wait_for_timeout(150)
+        check(pg.is_visible(".langdd nav a[lang=ar]"), "language dropdown opens with Arabic in it")
+        pg.click("h1"); pg.wait_for_timeout(150)
+        check(not pg.is_visible(".langdd nav a[lang=ar]"), "language dropdown closes on outside tap")
+        ctx.close()
         # Arabic page: translated chat buttons still ask the English question
         ctx = b.new_context(viewport={"width": 375, "height": 800})
         ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*"), lambda r: r.abort())
