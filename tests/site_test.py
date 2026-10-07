@@ -94,6 +94,8 @@ for page in pages:
     for m in re.finditer(r"<img [^>]*src=\"(?:\.\./)*img/(?:v/)?[\w-]+\.jpg\"", html):
         start = html.rfind("<picture>", 0, m.start())
         check(start != -1 and 'type="image/avif"' in html[start:m.start()], f"{rel}: photo served as AVIF/WebP")
+for page in pages[:-1]:
+    check('class="qr-code"' in page.read_text() and "M2," in page.read_text(), f"{page.relative_to(ROOT)}: WhatsApp QR code is inline")
 check(len((ROOT / "assets/site.min.css").read_text()) < len((ROOT / "assets/site.css").read_text()), "CSS is minified")
 
 # ---------------------------------------------------------------- languages

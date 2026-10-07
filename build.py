@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT_DIR / "content"))
 import site_data as S  # noqa: E402
 import chatbot  # noqa: E402
 import i18n  # noqa: E402
+import qr_data as Q  # noqa: E402
 from icons import icon  # noqa: E402
 
 TODAY = dt.date.today().isoformat()
@@ -306,7 +307,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
           <li>We speak: {" · ".join(S.LANGUAGES)}</li>
           <li>{e(S.ADDRESS['street'])}, Dubai, UAE</li>
         </ul>
-        <a class="qr" href="{S.WA}" target="_blank" rel="noopener"><img src="{r}img/whatsapp-qr.svg" alt="QR code to chat with Mizan on WhatsApp" width="96" height="96" loading="lazy"><span>Scan to chat<br>on WhatsApp</span></a>
+        <a class="qr" href="{S.WA}" target="_blank" rel="noopener"><svg class="qr-code" viewBox="0 0 {Q.SIZE} {Q.SIZE}" width="96" height="96" role="img" aria-label="QR code to chat with Mizan on WhatsApp" shape-rendering="crispEdges"><rect width="{Q.SIZE}" height="{Q.SIZE}" fill="#fff"/><path fill="#0a2f4f" d="{Q.PATH}"/></svg><span>Scan to chat<br>on WhatsApp</span></a>
       </div>
       <div>
         <h2 class="foot-h">Services</h2>
