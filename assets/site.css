@@ -508,3 +508,7 @@ html[lang=ar] .hero h1,html[lang=ur] .hero h1,html[lang=hi] .hero h1{font-size:c
   .top .logo{max-width:none;min-width:0;flex:1}
   .top .logo small{display:none}
 }
+
+/* v19 speed: skip layout and text shaping of off-screen sections until they scroll near */
+main>.sec{content-visibility:auto;contain-intrinsic-size:auto 900px}
+.cv-off main>.sec{content-visibility:visible}

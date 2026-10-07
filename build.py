@@ -62,7 +62,7 @@ def business_schema():
         "url": S.DOMAIN + "/",
         "telephone": [S.PHONE, S.PHONE2],
         "email": S.EMAIL,
-        "image": S.IMG["panel"],
+        "image": [img_abs(S.IMG[k]) for k in ("panel", "rack", "intercom", "ledwall")],
         "slogan": S.SLOGAN,
         "founder": {"@type": "Person", "name": S.OWNER, "jobTitle": S.OWNER_TITLE, "email": S.EMAIL, "knowsLanguage": S.LANGUAGES, "image": S.DOMAIN + "/img/mizan.jpg"},
         "address": {"@type": "PostalAddress", "streetAddress": S.ADDRESS["street"],
@@ -96,6 +96,10 @@ PHONE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 
 SCRIPT = """<script>
 (function(){
+  /* Off-screen sections skip rendering (content-visibility). Before jumping to a section, render them all so the jump lands exactly. */
+  function jump(id){var t=document.getElementById(id);if(!t)return false;document.documentElement.classList.add('cv-off');t.scrollIntoView();return true;}
+  if(location.hash.length>1)requestAnimationFrame(function(){jump(decodeURIComponent(location.hash.slice(1)));});
+  document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('a[href*="#"]');if(!a||a.pathname!==location.pathname||a.hash.length<2)return;if(jump(decodeURIComponent(a.hash.slice(1)))){ev.preventDefault();history.pushState(null,'',a.hash);}});
   var f=document.getElementById('request');
   if(f){
     var send=document.getElementById('r-send');
@@ -235,7 +239,7 @@ def hreflang_links():
     return "\n".join(f'<link rel="alternate" hreflang="{k}" href="{url(p)}">' for k, p in alts)
 
 
-def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", lastmod=TODAY):
+def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", lastmod=TODAY, og_alt=None):
     r = rel_root(path)
     home = r or "./"
     nav_prefix = "" if path == "/" else home
@@ -257,9 +261,14 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
 <meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:url" content="{url(path)}">
-<meta property="og:image" content="{e(og_image or S.IMG['panel'])}">
+<meta property="og:image" content="{e(img_abs(og_image or S.IMG['panel']))}">
+<meta property="og:image:alt" content="{e(og_alt or S.IMG_ALT['panel'])}">
 <meta property="og:locale" content="en_AE">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{e(title)}">
+<meta name="twitter:description" content="{e(desc)}">
+<meta name="twitter:image" content="{e(img_abs(og_image or S.IMG['panel']))}">
+<meta name="twitter:image:alt" content="{e(og_alt or S.IMG_ALT['panel'])}">
 <meta name="geo.region" content="AE-DU">
 <meta name="geo.placename" content="Dubai">
 <meta name="theme-color" content="#0a2f4f">
@@ -537,7 +546,7 @@ def build_service(s):
   {side_card(r, wa)}
 </div></section>
 {directory(r, exclude=s['slug'])}"""
-    layout(path, s["title"], s["desc"], content, og_image=img_abs(S.IMG[s["img"]]), priority="0.9",
+    layout(path, s["title"], s["desc"], content, og_image=img_abs(S.IMG[s["img"]]), og_alt=S.IMG_ALT[s["img"]], priority="0.9",
            schemas=[business_schema(), breadcrumb_schema([("Home", "/"), (s["short"], path)]),
                     {"@context": "https://schema.org", "@type": "Service", "name": s["h1"],
                      "serviceType": s["short"], "description": s["desc"],
@@ -546,13 +555,23 @@ def build_service(s):
                     faq_schema(s["faq"])])
 
 
+# A different real job photo for each area page (alt text describes the photo itself)
+_G = {g[0]: g[1] for g in S.GALLERY}
+AREA_IMG = {slug: (stem, _G[stem]) for slug, stem in {
+    "bur-dubai": "work-onsite", "deira": "work-db-panel", "al-karama": "work-door-intercom",
+    "al-barsha": "work-access-reader", "business-bay": "work-boardroom", "jumeirah": "work-led-wall",
+    "dubai-marina-jlt": "work-network-cabinet", "al-quoz": "work-cable-tray", "mirdif": "work-cable-riser",
+    "sharjah": "work-patch-panel"}.items()}
+
+
 def build_area(a):
     path = f"/areas/{a['slug']}/"
     r = rel_root(path)
     wa = f"Hello Mizan, I need a technician in {a['name']}. The job: "
     cards = "".join(f'<li><a href="{r}{s["slug"]}/">{e(s["short"])} in {e(a["name"])}</a></li>' for s in S.SERVICES)
+    stem, alt = AREA_IMG[a["slug"]]
     content = f"""{crumbs(r, [('Areas', '../../#areas'), (a['name'], path)])}
-{page_hero(f"Technician in {a['name']}", a['blurb'], S.IMG['dubai'], f"Dubai city skyline: Mizan's team covers {a['name']}", wa)}
+{page_hero(f"Technician in {a['name']}", a['blurb'], img_src(r, f"img/{stem}.jpg"), f"{alt} (Mizan's team, serving {a['name']})", wa)}
 <section class="sec"><div class="wrap split">
   <article class="prose">
     <h2>Services in {e(a['name'])}</h2>
@@ -566,7 +585,7 @@ def build_area(a):
 {directory(r, exclude=a['slug'])}"""
     layout(path, f"Technician in {a['name']} | CCTV, Electrical & Repairs",
            f"Need a technician in {a['name']}? CCTV, Wi-Fi, access control, PABX, IT support, electrical and maintenance by MTM Group Tech. WhatsApp {S.PHONE_PRETTY}.",
-           content, priority="0.7",
+           content, priority="0.7", og_image=f"{S.DOMAIN}/img/{stem}.jpg", og_alt=f"{alt} (Mizan's team, serving {a['name']})",
            schemas=[business_schema(), breadcrumb_schema([("Home", "/"), (a["name"], path)])])
 
 
@@ -675,11 +694,23 @@ def build_home_lang(code):
     register(f"/{code}/", page, "0.9")
 
 
+def page_images(p):
+    """Absolute URLs of the master photos shown on a built page (for the image sitemap)."""
+    f = OUT / p.lstrip("/") / "index.html"
+    if not f.exists():
+        return []
+    stems = dict.fromkeys(re.findall(r'<img src="(?:\.\./)*img/([\w-]+)\.jpg"', f.read_text(encoding="utf-8")))
+    return [f"{S.DOMAIN}/img/{st}.jpg" for st in stems]
+
+
 def build_sitemap():
-    rows = "".join(f"<url><loc>{url(p)}</loc><lastmod>{lm}</lastmod><priority>{pr}</priority></url>\n"
-                   for p, lm, pr in GENERATED)
+    def row(p, lm, pr):
+        imgs = "".join(f"<image:image><image:loc>{u}</image:loc></image:image>" for u in page_images(p))
+        return f"<url><loc>{url(p)}</loc><lastmod>{lm}</lastmod><priority>{pr}</priority>{imgs}</url>\n"
+    rows = "".join(row(*g) for g in GENERATED)
     (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
-                                     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                                     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+                                     'xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n'
                                      f"{rows}</urlset>\n", encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {S.DOMAIN}/sitemap.xml\n", encoding="utf-8")
 

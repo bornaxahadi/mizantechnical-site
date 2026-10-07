@@ -116,6 +116,28 @@ for code, d in LANG_DIR.items():
 for pg in pages[:-1]:  # 404.html is a bare page
     check('class="langsw"' in pg.read_text(encoding="utf-8"), f"language switcher on {pg.relative_to(ROOT)}")
 
+# Arabic/Hindi fonts are subset to the letters the site uses: every letter on the pages must be in them
+try:
+    from fontTools.ttLib import TTFont
+    for code, font, lo, hi in (("ar", "noto-arabic", 0x600, 0x8FF), ("ur", "noto-arabic", 0x600, 0x8FF), ("hi", "hind", 0x900, 0x97F)):
+        txt = (ROOT / code / "index.html").read_text(encoding="utf-8") + (ROOT / "content/i18n.py").read_text(encoding="utf-8")
+        need = {ord(c) for c in txt if lo <= ord(c) <= hi}
+        for w in ("400", "700"):
+            cmap = TTFont(ROOT / f"assets/fonts/{font}-{w}.woff2").getBestCmap()
+            miss = "".join(chr(c) for c in sorted(need - set(cmap)))
+            check(not miss, f"/{code}/ letters all in {font}-{w} (missing: {miss!r}); re-subset the font")
+except ImportError:
+    print("Note: fontTools not installed, font coverage check skipped")
+# Image SEO: absolute social images, image sitemap
+for pg in [p for p in ROOT.rglob("index.html") if ".git" not in p.parts and "node_modules" not in p.parts]:
+    s2 = pg.read_text(encoding="utf-8")
+    m = re.search(r'<meta property="og:image" content="([^"]+)"', s2)
+    if m:
+        check(m.group(1).startswith("https://"), f"{pg.relative_to(ROOT)}: og:image is an absolute URL")
+        check('twitter:image' in s2 and 'og:image:alt' in s2, f"{pg.relative_to(ROOT)}: has twitter:image and og:image:alt")
+sm = (ROOT / "sitemap.xml").read_text()
+check("<image:image>" in sm and "sitemap-image/1.1" in sm, "sitemap lists the work photos (image sitemap)")
+
 # ---------------------------------------------------------------- browser
 try:
     from playwright.sync_api import sync_playwright
