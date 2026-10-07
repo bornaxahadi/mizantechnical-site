@@ -65,6 +65,24 @@ for f in ("favicon.ico", "favicon.svg", "apple-touch-icon.png", "CNAME", ".nojek
     check((ROOT / f).exists(), f"{f} present")
 check((ROOT / "CNAME").read_text().strip() == "mizantechnical.site", "CNAME is mizantechnical.site")
 
+# ---------------------------------------------------------------- languages
+LANG_DIR = {"ar": "rtl", "ur": "rtl", "hi": "ltr"}
+en_home = (ROOT / "index.html").read_text(encoding="utf-8")
+for code in ["en"] + list(LANG_DIR):
+    check(f'hreflang="{code}"' in en_home, f"home links the {code} version (hreflang)")
+check('hreflang="x-default"' in en_home, "home has an x-default hreflang")
+for code, d in LANG_DIR.items():
+    s = (ROOT / code / "index.html").read_text(encoding="utf-8")
+    check(f'<html lang="{code}" dir="{d}">' in s, f"/{code}/ has lang={code} dir={d}")
+    check(f'<link rel="canonical" href="https://mizantechnical.site/{code}/">' in s, f"/{code}/ canonical points to itself")
+    check(s.count('rel="alternate" hreflang=') == 5, f"/{code}/ carries all hreflang links")
+    check("Will Fix It." not in s and "Send a request" not in s, f"/{code}/ headline and form are translated")
+    check("+971 52 962 2078" in s and "MTM Group Tech" in s, f"/{code}/ keeps the phone number and brand name")
+    check('<option value="CCTV &amp; security">' in s, f"/{code}/ form still sends the English service name")
+    check("window.MTM_I18N=" in s, f"/{code}/ chat buttons are translated")
+for pg in pages[:-1]:  # 404.html is a bare page
+    check('class="langsw"' in pg.read_text(encoding="utf-8"), f"language switcher on {pg.relative_to(ROOT)}")
+
 # ---------------------------------------------------------------- browser
 try:
     from playwright.sync_api import sync_playwright
@@ -134,6 +152,15 @@ if sync_playwright:
         pg.click(".mc-log .mc-chip.wa >> nth=-1"); pg.wait_for_timeout(800)
         last = unquote(opened[-1]) if opened else ""
         check("Service: CCTV" in last and "Area: Deira" in last and "cctv not recording in Deira" in last, "chat hands off to WhatsApp with service, area and messages")
+        ctx.close()
+        # Arabic page: translated chat buttons still ask the English question
+        ctx = b.new_context(viewport={"width": 375, "height": 800})
+        ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*"), lambda r: r.abort())
+        pg = ctx.new_page()
+        pg.goto(base + "ar/"); pg.click(".mc-fab"); pg.wait_for_timeout(500)
+        check("اسأل ميزان" in pg.inner_text(".mc-fab") and "مرحبًا" in pg.inner_text(".mc-log"), "Arabic chat greets in Arabic")
+        pg.click(".mc-log .mc-chip >> text=كاميرات المراقبة"); pg.wait_for_timeout(1200)
+        check("CCTV" in pg.inner_text(".mc-log .mc-msg.bot >> nth=-1"), "Arabic CCTV button gets the CCTV answer")
         ctx.close()
         b.close()
     srv.shutdown()

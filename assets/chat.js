@@ -6,6 +6,8 @@
 (function () {
   var WA = "971529622078", TEL = "+971529622078";
   var me = document.currentScript;
+  var I = window.MTM_I18N || {}, IC = I.chips || {};
+  function tr(c) { return IC[c] || c; }
   var ROOT = me && me.src ? new URL("..", me.src).href : "./";
   var KB = window.MTM_KB || null, loading = null;
   var ctx = { svc: "", area: "", said: [] };
@@ -129,7 +131,7 @@
     if (!list || !list.length) return;
     var row = el("div", "mc-chips");
     list.forEach(function (c) {
-      var b = el("button", "mc-chip", esc(c)); b.type = "button";
+      var b = el("button", "mc-chip", esc(tr(c))); b.type = "button";
       if (c === "Send to WhatsApp" || c === "Get a quote on WhatsApp") b.className += " wa";
       b.addEventListener("click", function () { chip(c); });
       row.appendChild(b);
@@ -138,18 +140,18 @@
   }
   function handoff(note) {
     var m = say("bot", esc(note || "Here's everything from this chat, ready to send:") +
-      '<div class="mc-hand"><a class="mc-wa" target="_blank" rel="noopener" href="' + waLink() + '">Send to Mizan on WhatsApp</a>' +
-      '<a class="mc-call" href="tel:' + TEL + '">Call +971 52 962 2078</a></div>');
+      '<div class="mc-hand"><a class="mc-wa" target="_blank" rel="noopener" href="' + waLink() + '">' + esc(I.wa || "Send to Mizan on WhatsApp") + '</a>' +
+      '<a class="mc-call" href="tel:' + TEL + '">' + esc(I.call || "Call") + ' +971 52 962 2078</a></div>');
     return m;
   }
   function chip(c) {
-    if (c === "Send to WhatsApp" || c === "Get a quote on WhatsApp") { say("me", esc(c)); window.open(waLink(), "_blank", "noopener"); handoff("Opening WhatsApp with your messages filled in. If it didn't open, use these buttons:"); return; }
+    if (c === "Send to WhatsApp" || c === "Get a quote on WhatsApp") { say("me", esc(tr(c))); window.open(waLink(), "_blank", "noopener"); handoff("Opening WhatsApp with your messages filled in. If it didn't open, use these buttons:"); return; }
     if (c === "Call Mizan") { location.href = "tel:" + TEL; return; }
     if (c === "Tips") { location.href = ROOT + "tips/"; return; }
-    if (c === "Price") return ask("how much " + (ctx.svc ? SVC_NAMES[ctx.svc] : ""), c);
-    if (c === "Book a visit") return ask("book " + (ctx.svc ? SVC_NAMES[ctx.svc] : "visit"), c);
-    if (CHIP_SVC[c]) return ask(CHIP_SVC[c], c);
-    ask(c, c);
+    if (c === "Price") return ask("how much " + (ctx.svc ? SVC_NAMES[ctx.svc] : ""), tr(c));
+    if (c === "Book a visit") return ask("book " + (ctx.svc ? SVC_NAMES[ctx.svc] : "visit"), tr(c));
+    if (CHIP_SVC[c]) return ask(CHIP_SVC[c], tr(c));
+    ask(c, tr(c));
   }
   function answer(text) {
     var a = detectArea(text); if (a) ctx.area = a;
@@ -183,7 +185,7 @@
   function open() {
     box.hidden = false; fab.setAttribute("aria-expanded", "true"); document.body.classList.add("mc-open");
     if (!log.childNodes.length) {
-      say("bot", "Hi! I'm Mizan's website assistant. I can answer questions about his services, areas and how to book. What do you need fixed?");
+      say("bot", esc(I.hello || "Hi! I'm Mizan's website assistant. I can answer questions about his services, areas and how to book. What do you need fixed?"));
       chips(["I have a problem", "Contact me", "CCTV", "Cabling", "Price", "Areas covered"]);
     }
     ensure();
@@ -192,17 +194,18 @@
   function close() { box.hidden = true; fab.setAttribute("aria-expanded", "false"); document.body.classList.remove("mc-open"); fab.focus(); }
   function mount() {
     var logo = document.querySelector(".logo-mark");
-    fab = el("button", "mc-fab", (logo ? logo.outerHTML : "") + "<span>Ask Mizan</span>");
+    fab = el("button", "mc-fab", (logo ? logo.outerHTML : "") + "<span>" + esc(I.fab || "Ask Mizan") + "</span>");
     fab.type = "button"; fab.setAttribute("aria-label", "Open chat assistant"); fab.setAttribute("aria-expanded", "false"); fab.setAttribute("aria-controls", "mc-box");
     box = el("section", "mc-box");
     box.id = "mc-box"; box.hidden = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Chat with Mizan's assistant");
     box.innerHTML = '<header class="mc-head">' + (logo ? logo.outerHTML : "") +
-      '<div><b>Mizan Assistant</b><small>Automatic helper · instant answers</small></div>' +
+      '<div><b>' + esc(I.title || "Mizan Assistant") + '</b><small>' + esc(I.sub || "Automatic helper · instant answers") + '</small></div>' +
       '<button type="button" class="mc-x" aria-label="Close chat">×</button></header>' +
       '<div class="mc-log" aria-live="polite"></div>' +
-      '<form class="mc-form"><input type="text" placeholder="Type your question…" aria-label="Your question" maxlength="300" autocomplete="off">' +
+      '<form class="mc-form"><input type="text" placeholder="' + esc(I.ph || "Type your question…") + '" aria-label="Your question" maxlength="300" autocomplete="off">' +
       '<button type="submit" aria-label="Send">➤</button></form>' +
-      '<p class="mc-note">Automatic assistant, not a live person. <a target="_blank" rel="noopener" href="https://wa.me/' + WA + '">WhatsApp Mizan</a> for a real reply.</p>';
+      (I.note ? '<p class="mc-note"><a target="_blank" rel="noopener" href="https://wa.me/' + WA + '">' + esc(I.note) + '</a></p>' :
+      '<p class="mc-note">Automatic assistant, not a live person. <a target="_blank" rel="noopener" href="https://wa.me/' + WA + '">WhatsApp Mizan</a> for a real reply.</p>');
     document.body.appendChild(box); document.body.appendChild(fab);
     log = box.querySelector(".mc-log"); input = box.querySelector("input");
     box.querySelector(".mc-wa, .mc-note a").addEventListener("click", function (ev) { ev.currentTarget.href = waLink(); });

@@ -22,6 +22,7 @@ ROOT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT_DIR / "content"))
 import site_data as S  # noqa: E402
 import chatbot  # noqa: E402
+import i18n  # noqa: E402
 from icons import icon  # noqa: E402
 
 TODAY = dt.date.today().isoformat()
@@ -124,6 +125,18 @@ SCRIPT = """<script>
 </script>"""
 
 
+def lang_switch(r, cur="en"):
+    links = [("en", "EN", "English", r or "./")] + [(k, v["short"], v["name"], f"{r}{k}/") for k, v in i18n.LANGS.items()]
+    return ('<nav class="langsw" aria-label="Language">' + "".join(
+        f'<a href="{h}" hreflang="{k}" lang="{k}" title="{n}"{" aria-current=\"true\"" if k == cur else ""}>{lab}</a>'
+        for k, lab, n, h in links) + "</nav>")
+
+
+def hreflang_links():
+    alts = [("en", "/"), ("x-default", "/")] + [(k, f"/{k}/") for k in i18n.LANGS]
+    return "\n".join(f'<link rel="alternate" hreflang="{k}" href="{url(p)}">' for k, p in alts)
+
+
 def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", lastmod=TODAY):
     r = rel_root(path)
     home = r or "./"
@@ -139,6 +152,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{url(path)}">
+{hreflang_links() if path == "/" else ""}
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{e(S.NAME)}">
@@ -171,6 +185,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
       <a href="{r}tips/">Tips</a>
       <a href="{nav_prefix}#request">Hire Mizan</a>
     </nav>
+    {lang_switch(r)}
     <a class="btn btn-navy" href="tel:{S.PHONE}">{PHONE_ICON}<span>Call Mizan</span></a>
   </div>
 </header>
@@ -224,6 +239,10 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
 </html>
 """
     write(path, page)
+    register(path, page, priority, lastmod)
+
+
+def register(path, page, priority, lastmod=TODAY):
     digest = hashlib.sha1(page.encode()).hexdigest()
     old = STATE.get(path)
     if old and old["hash"] == digest:
@@ -437,6 +456,49 @@ def build_404():
 """, encoding="utf-8")
 
 
+REL_URL = re.compile(r'((?:href|src)=")(?!https?:|#|tel:|mailto:|data:|/|\./")([^"]*)"')
+
+
+def build_home_lang(code):
+    L = i18n.LANGS[code]
+    idx = ["ar", "ur", "hi"].index(code)
+    page = (OUT / "index.html").read_text(encoding="utf-8")
+    page = page.replace('<html lang="en">', f'<html lang="{code}" dir="{L["dir"]}">', 1)
+    page = re.sub(r"<title>.*?</title>", f"<title>{e(L['title'])}</title>", page, count=1)
+    page = re.sub(r'(<meta (?:name="description"|property="og:description") content=")[^"]*"', lambda m: m.group(1) + e(L["desc"]) + '"', page)
+    page = re.sub(r'(<meta property="og:title" content=")[^"]*"', lambda m: m.group(1) + e(L["title"]) + '"', page)
+    page = page.replace(f'<link rel="canonical" href="{url("/")}">', f'<link rel="canonical" href="{url("/" + code + "/")}">')
+    page = page.replace(f'<meta property="og:url" content="{url("/")}">', f'<meta property="og:url" content="{url("/" + code + "/")}">')
+    page = page.replace('content="en_AE"', f'content="{L["locale"]}"')
+    # relative links and images move one folder down
+    page = REL_URL.sub(lambda m: m.group(1) + "../" + m.group(2) + '"', page)
+    page = re.sub(r'srcset="([^"]+)"', lambda m: 'srcset="' + ", ".join(
+        x if x.startswith(("http", "/")) else "../" + x for x in m.group(1).split(", ")) + '"', page)
+    page = re.sub(r'<nav class="langsw".*?</nav>', lang_switch("../", code), page, count=1, flags=re.S)
+    # form options keep the English value so Mizan's WhatsApp message stays readable
+    page = re.sub(r"<option>(.*?)</option>", lambda m: f'<option value="{m.group(1)}">{m.group(1)}</option>', page)
+    for en in sorted(i18n.T, key=len, reverse=True):
+        tr = i18n.T[en][idx]
+        x = re.escape(html.escape(en, quote=False))
+        page = re.sub(r"(>\s*)" + x + r"(\s*<)", lambda m: m.group(1) + html.escape(tr, quote=False) + m.group(2), page)
+        page = re.sub(r'((?:alt|placeholder|aria-label|title)=")' + x + '"', lambda m: m.group(1) + e(tr) + '"', page)
+    if L["dir"] == "rtl":  # keep phone numbers reading left to right inside Arabic/Urdu text
+        parts = re.split(r"(<script.*?</script>|<head>.*?</head>)", page, flags=re.S)
+        page = "".join(x if x.startswith(("<script", "<head>")) else re.sub(
+            r">([^<]*)<", lambda m: ">" + re.sub(r"\u200e?(\+971 5\d \d{3} \d{4})", r'<bdi dir="ltr">\1</bdi>', m.group(1)) + "<", x)
+            for x in parts)
+    font = "Noto+Sans+Arabic:wght@400;500;600;700;800" if L["dir"] == "rtl" else "Hind:wght@400;500;600;700"
+    page = page.replace('<link rel="stylesheet" href="../assets/site.css">',
+                        f'<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={font}&display=swap">\n'
+                        '<link rel="stylesheet" href="../assets/site.css">', 1)
+    chat = dict(i18n.CHAT[code], chips={k: v[idx] for k, v in i18n.CHIPS.items()})
+    page = page.replace('<script src="../assets/chat.js" defer></script>',
+                        f"<script>window.MTM_I18N={json.dumps(chat, ensure_ascii=False)}</script>\n"
+                        '<script src="../assets/chat.js" defer></script>', 1)
+    write(f"/{code}/", page)
+    register(f"/{code}/", page, "0.9")
+
+
 def build_sitemap():
     rows = "".join(f"<url><loc>{url(p)}</loc><lastmod>{lm}</lastmod><priority>{pr}</priority></url>\n"
                    for p, lm, pr in GENERATED)
@@ -520,6 +582,8 @@ def main():
     if "--publish-next" in sys.argv:
         publish_next()
     build_home()
+    for code in i18n.LANGS:
+        build_home_lang(code)
     for s in S.SERVICES:
         build_service(s)
     for a in S.AREAS:
