@@ -1,106 +1,110 @@
 {
  "/": {
-  "hash": "029f1fd176f7297107b1fb74c400ecab2ecc2a5b",
+  "hash": "44a7c04f31d295196ea66a2620bfeb4e96527ad1",
   "lastmod": "2026-10-07"
  },
  "/access-control-biometric-dubai/": {
-  "hash": "e0b7b1a67c686c0dbcf3c5fd48014a4e4c01ec5b",
+  "hash": "5a111d8ee7b9ea6f9108f5551120f0ea50945a74",
   "lastmod": "2026-10-07"
  },
  "/ar/": {
-  "hash": "ef36d0202f5e461603bc3d149a3d5f3e4352aa08",
+  "hash": "34e1f85d0889db5b510f534da624300f2900a363",
   "lastmod": "2026-10-07"
  },
  "/areas/al-barsha/": {
-  "hash": "e988b03e512793b2cfc8a2b36efc86c324671588",
+  "hash": "1b94c8dd02f62a1ae3bcc149053485b6e25bb890",
   "lastmod": "2026-10-07"
  },
  "/areas/al-karama/": {
-  "hash": "43a61fefaf172b4e2854fbc983acc385a2f44445",
+  "hash": "f41b37bcb9cff6578a10f25c92007c22ccf5bedc",
   "lastmod": "2026-10-07"
  },
  "/areas/al-quoz/": {
-  "hash": "83eaf4c2acda8c902c422e3e88bccaa719cf30ec",
+  "hash": "bc5a1f7bd2fa0a216739c7770ba3bc4bb5b82db7",
   "lastmod": "2026-10-07"
  },
  "/areas/bur-dubai/": {
-  "hash": "23eff00e9eeb08f257b2d40dc31de36f015501a8",
+  "hash": "93116c92acc61e6f5372814409fc5071f1507b8d",
   "lastmod": "2026-10-07"
  },
  "/areas/business-bay/": {
-  "hash": "a6a8c2002b354812ad77121fb82df64729d9f15e",
+  "hash": "469dd970b945d1de174463ead43a3c206d15db89",
   "lastmod": "2026-10-07"
  },
  "/areas/deira/": {
-  "hash": "92d1ddb8ce92f8abf6c514eeb9be9d9b789560e0",
+  "hash": "626b9c9493c9bdc1b30c53a8915609ccc40e9e8c",
   "lastmod": "2026-10-07"
  },
  "/areas/dubai-marina-jlt/": {
-  "hash": "12965790e80ae0ada39c8eb2050e01323548f4ec",
+  "hash": "1645e827f8fadb7ac98d7e47653d15558868f300",
   "lastmod": "2026-10-07"
  },
  "/areas/jumeirah/": {
-  "hash": "209095d77b17ea4806dde58e5b7969e362def44e",
+  "hash": "eb21720d75b87a39bd667389bd496f81e4eaded7",
   "lastmod": "2026-10-07"
  },
  "/areas/mirdif/": {
-  "hash": "092156224bd1c1ab5e8ad2fc703bc17224e224ba",
+  "hash": "80009cf0d40e62882b176193119eb3029cca91c9",
   "lastmod": "2026-10-07"
  },
  "/areas/sharjah/": {
-  "hash": "f5d00d66630c6943a2d45bdef8b080363e599ac8",
+  "hash": "3777be720d97b97bb295d9711e80b29ddb15eb29",
   "lastmod": "2026-10-07"
  },
  "/cctv-installation-dubai/": {
-  "hash": "25fa0355e90c3e198dd2478c7bfdfc40e656b479",
+  "hash": "9533863069f5076f2814eeb713541276691014b0",
   "lastmod": "2026-10-07"
  },
  "/electrician-dubai/": {
-  "hash": "33412e3a42b0504e4fc14e36a78f55e737d78ec8",
+  "hash": "8556d9931063530655569b59c0afa1554feea8b6",
+  "lastmod": "2026-10-07"
+ },
+ "/gallery/": {
+  "hash": "665bb27847264ee27f1c3b7229681fffe8ae1402",
   "lastmod": "2026-10-07"
  },
  "/handyman-maintenance-dubai/": {
-  "hash": "e655e92c5975e5648a5bc1ce0624f3a5aaf27a83",
+  "hash": "471d8213a5ff2ebde2bf6d87e775f78a74df8ca3",
   "lastmod": "2026-10-07"
  },
  "/hi/": {
-  "hash": "193b81278c73627f0cf97c91c6d36bd70ae352e8",
+  "hash": "b57b289ede10f3d2a4232606a763bc631de24094",
   "lastmod": "2026-10-07"
  },
  "/it-support-computer-repair-dubai/": {
-  "hash": "88b2a75ded7d93f377f0cc4bfbbe502f88fbed3d",
+  "hash": "ec58589f120a8429f074d283e9e147c50a90e35e",
   "lastmod": "2026-10-07"
  },
  "/pabx-intercom-ip-phone-dubai/": {
-  "hash": "d42cfc723f006f6bacb47c3e635285be9a1c6fde",
+  "hash": "1523949fcdac30b8e11f94b4a2e60643ec41f243",
   "lastmod": "2026-10-07"
  },
  "/sound-system-installation-dubai/": {
-  "hash": "8c86982b0f26916450e3c650e2a01f4a5d0003cd",
+  "hash": "31c96246ff07bef98dddc5882608ea2a18c91ac3",
   "lastmod": "2026-10-07"
  },
  "/structured-cabling-dubai/": {
-  "hash": "aadd7cc6adaeb97c6989364a31bece4e05c7a251",
+  "hash": "ec130412448bca8b2d8103c0fdfe23c4ddc54b65",
   "lastmod": "2026-10-07"
  },
  "/tips/": {
-  "hash": "2304276f8fb2fa58909431979c98fac9baa87402",
+  "hash": "c63bbf3ca1504603e442e01e9da31a8ec634c448",
   "lastmod": "2026-10-07"
  },
  "/tips/cctv-not-recording-what-to-check/": {
-  "hash": "7e1c5d41821966c1c21b4ee3aeeca3ad34761917",
+  "hash": "5ddd2a2db58a342294b0db320e0e9185be8accdf",
   "lastmod": "2026-10-07"
  },
  "/tips/fix-weak-wifi-in-dubai-villa/": {
-  "hash": "a9d1472cf9228e46bb69965a31ea39faf770edd2",
+  "hash": "499597cc486335efd8491bfd07409dcd1277a917",
   "lastmod": "2026-10-07"
  },
  "/ur/": {
-  "hash": "d80a09aee16b94acb587c66bc394c522ce2de1ad",
+  "hash": "12893a4801f141323c4a1df3ca83a8cea434a38a",
   "lastmod": "2026-10-07"
  },
  "/wifi-networking-dubai/": {
-  "hash": "6a415d872275386e418a71bb99136b8c461e9c21",
+  "hash": "33da36b86adf4dce9285f98aa7c6cd51003eee78",
   "lastmod": "2026-10-07"
  }
 }

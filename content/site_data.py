@@ -224,3 +224,23 @@ AREAS = [
     {"slug": "mirdif", "name": "Mirdif", "blurb": "Family villas in Mirdif: CCTV, intercoms, Wi-Fi coverage and the everyday repairs that come with a busy home."},
     {"slug": "sharjah", "name": "Sharjah", "blurb": "We also take jobs in Sharjah for homes, shops and offices. Send your location on WhatsApp to arrange a visit."},
 ]
+
+# Mizan's own job photos: the home carousel and /gallery/. One photo per job
+# type, no near-duplicates. (file stem, alt text, caption, category)
+GALLERY = [
+    ("work-onsite", "Mizan on site in Dubai wearing a safety vest", "On site in Dubai", "On site"),
+    ("work-rack", "Mizan cabling a network rack on an office fit-out in Dubai", "Network rack cabling", "Cabling"),
+    ("work-network-cabinet", "Network cabinet with patched data cables and switches", "Network cabinet", "Cabling"),
+    ("work-patch-panel", "Patch panels with neatly terminated blue network cables", "Patch panel termination", "Cabling"),
+    ("work-rack-dressing", "Network cables bundled and dressed inside a new server rack", "Rack cable dressing", "Cabling"),
+    ("work-cable-riser", "Bundles of network cable pulled through a cable riser", "Cable pulls in the riser", "Cabling"),
+    ("work-cable-tray", "Cable trays and a coiled network cable ready for termination", "Cable trays", "Cabling"),
+    ("work-floor-boxes", "Floor boxes for power and data being fitted in a new office", "Floor boxes for power and data", "Cabling"),
+    ("work-boardroom", "Boardroom table being fitted with power and data points", "Boardroom table data points", "IT & AV"),
+    ("work-door-intercom", "Video door intercom installed at a villa gate", "Video door intercom", "Security"),
+    ("work-access-reader", "Access control reader and network cabinet installed on an office wall", "Access control & cabinet", "Security"),
+    ("work-db-panel", "Electrical distribution board with warning labels", "Electrical distribution board", "Electrical"),
+    ("work-db-boards", "New electrical distribution boards with breakers wired in", "Distribution boards", "Electrical"),
+    ("work-led-wall", "Curved LED feature wall lighting installed in a Dubai showroom", "LED feature wall lighting", "Electrical"),
+    ("work-onsite-office", "Mizan on site at an office fit-out in Dubai", "Office fit-out, Dubai", "On site"),
+]

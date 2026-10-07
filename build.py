@@ -120,6 +120,12 @@ SCRIPT = """<script>
           problem:v('r-msg'),when:w?w.value:'',page:location.href})});}catch(err){}
     });
   }
+  [].forEach.call(document.querySelectorAll('.car'),function(c){
+    var t=c.querySelector('.car-track'),rtl=getComputedStyle(c).direction==='rtl';
+    function go(d){t.scrollBy({left:d*(rtl?-1:1)*t.clientWidth*0.9,behavior:'smooth'})}
+    c.querySelector('.prev').addEventListener('click',function(){go(-1)});
+    c.querySelector('.next').addEventListener('click',function(){go(1)});
+  });
   var y=document.getElementById('yr');if(y)y.textContent=new Date().getFullYear();
 })();
 </script>"""
@@ -182,6 +188,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
     <nav class="nav" aria-label="Main">
       <a href="{nav_prefix}#services">Services</a>
       <a href="{nav_prefix}#areas">Areas</a>
+      <a href="{r}gallery/">Work</a>
       <a href="{r}tips/">Tips</a>
       <a href="{nav_prefix}#request">Hire Mizan</a>
     </nav>
@@ -217,6 +224,7 @@ def layout(path, title, desc, body, schemas=(), og_image=None, priority="0.6", l
       <div>
         <h4>Links</h4>
         <ul>
+          <li><a href="{r}gallery/">Work gallery</a></li>
           <li><a href="{r}tips/">Tips &amp; guides</a></li>
           <li><a href="{S.MAPS}" target="_blank" rel="noopener">Google Maps</a></li>
           <li><a href="{S.REVIEW}" target="_blank" rel="noopener">Leave a Google review</a></li>
@@ -328,10 +336,86 @@ def related_tips(r, service_slug):
 
 
 # ---------------------------------------------------------------- pages
+# ---------------------------------------------------------------- work photos
+def picture(r, stem, alt, attrs='loading="lazy"'):
+    return (f'<picture><source srcset="{r}img/{stem}.webp" type="image/webp">'
+            f'<img src="{r}img/{stem}.jpg" alt="{e(alt)}" {attrs}></picture>')
+
+
+def carousel(r):
+    items = "".join(f'<li><a href="{r}gallery/#{stem}">{picture(r, stem, alt)}<span>{e(cap)}</span></a></li>'
+                    for stem, alt, cap, _ in S.GALLERY)
+    return f"""      <div class="car">
+        <button class="car-btn prev" type="button" aria-label="Previous photos">&#8249;</button>
+        <ul class="car-track" tabindex="0" aria-label="Photos of Mizan's work">{items}</ul>
+        <button class="car-btn next" type="button" aria-label="Next photos">&#8250;</button>
+      </div>
+      <p class="car-more"><a class="btn btn-navy" href="{r}gallery/">See all our work</a></p>"""
+
+
+GALLERY_JS = """<script>
+(function(){
+  var figs=[].slice.call(document.querySelectorAll('.gal figure')),dlg=document.getElementById('lb'),cur=0;
+  [].forEach.call(document.querySelectorAll('.gal-filter button'),function(b){
+    b.addEventListener('click',function(){
+      [].forEach.call(document.querySelectorAll('.gal-filter button'),function(x){x.setAttribute('aria-pressed',x===b)});
+      figs.forEach(function(f){f.hidden=!(b.dataset.cat==='all'||f.dataset.cat===b.dataset.cat)});
+    });
+  });
+  function vis(){return figs.filter(function(f){return !f.hidden})}
+  function show(i){var v=vis();if(!v.length)return;cur=(i+v.length)%v.length;
+    var f=v[cur],img=f.querySelector('img'),big=dlg.querySelector('img');big.src=img.currentSrc||img.src;big.alt=img.alt;
+    dlg.querySelector('p').textContent=f.querySelector('figcaption').textContent;history.replaceState(null,'','#'+f.id);}
+  figs.forEach(function(f){f.querySelector('button').addEventListener('click',function(){show(vis().indexOf(f));dlg.showModal();});});
+  dlg.querySelector('.lb-x').addEventListener('click',function(){dlg.close()});
+  dlg.querySelector('.lb-prev').addEventListener('click',function(){show(cur-1)});
+  dlg.querySelector('.lb-next').addEventListener('click',function(){show(cur+1)});
+  dlg.addEventListener('click',function(ev){if(ev.target===dlg)dlg.close()});
+  dlg.addEventListener('keydown',function(ev){if(ev.key==='ArrowRight')show(cur+1);if(ev.key==='ArrowLeft')show(cur-1)});
+  var h=location.hash.slice(1),t=h&&document.getElementById(h);
+  if(t&&t.matches('.gal figure')){t.scrollIntoView({block:'center'});t.querySelector('button').focus({preventScroll:true});}
+})();
+</script>"""
+
+
+def build_gallery():
+    path = "/gallery/"
+    r = rel_root(path)
+    cats = []
+    for g in S.GALLERY:
+        if g[3] not in cats:
+            cats.append(g[3])
+    filters = '<button type="button" data-cat="all" aria-pressed="true">All</button>' + "".join(
+        f'<button type="button" data-cat="{e(c)}" aria-pressed="false">{e(c)}</button>' for c in cats)
+    figs = "".join(f'<figure id="{stem}" data-cat="{e(cat)}"><button type="button" aria-label="Enlarge: {e(cap)}">'
+                   f'{picture(r, stem, alt)}</button><figcaption>{e(cap)}</figcaption></figure>'
+                   for stem, alt, cap, cat in S.GALLERY)
+    wa = wa_link("Hello Mizan, I saw your work on your website and need a technician. My location: ")
+    content = f"""{crumbs(r, [('Our work', path)])}
+<section class="sec" style="padding-top:10px"><div class="wrap">
+  <div class="head"><div><span class="kicker">Our work</span><h1 style="font-family:var(--display);text-transform:uppercase;font-size:clamp(2.6rem,6vw,4.4rem);font-weight:400">Jobs Mizan has done in Dubai</h1></div>
+  <p>Real photos from Mizan's own jobs: network and CCTV cabling, racks, intercoms, access control and electrical boards in offices, shops, villas and warehouses. Tap a photo to see it bigger.</p></div>
+  <div class="gal-filter" role="group" aria-label="Filter photos">{filters}</div>
+  <div class="gal">{figs}</div>
+  <p class="car-more"><a class="btn btn-wa" href="{wa}" target="_blank" rel="noopener">WhatsApp Mizan about your job</a></p>
+</div></section>
+<dialog id="lb" class="lb" aria-label="Photo viewer"><img src="data:," alt=""><p></p>
+  <button type="button" class="lb-prev" aria-label="Previous photo">&#8249;</button><button type="button" class="lb-next" aria-label="Next photo">&#8250;</button>
+  <button type="button" class="lb-x" aria-label="Close">&times;</button></dialog>
+{directory(r)}
+{GALLERY_JS}"""
+    layout(path, "Our Work | CCTV, Cabling & Electrical Jobs in Dubai",
+           "Photos of real jobs by Mizan and MTM Group Tech in Dubai: network and CCTV cabling, server racks, door intercoms, access control and electrical boards.",
+           content, priority="0.7", og_image=S.DOMAIN + "/img/work-rack-dressing.jpg",
+           schemas=[breadcrumb_schema([("Home", "/"), ("Our work", path)]),
+                    {"@context": "https://schema.org", "@type": "ImageGallery", "name": "MTM Group Tech work in Dubai",
+                     "image": [{"@type": "ImageObject", "contentUrl": f"{S.DOMAIN}/img/{g[0]}.jpg", "caption": g[2]} for g in S.GALLERY]}])
+
+
 def build_home():
     body = (ROOT_DIR / "src/home.html").read_text(encoding="utf-8")
     body = re.sub(r"\{\{ICON:(\w+)\}\}", lambda m: icon(m.group(1)), body)
-    body = body.replace("{{ROOT}}", "").replace("{{EMAIL}}", e(S.EMAIL)).replace("{{DIRECTORY}}", directory(""))
+    body = body.replace("{{ROOT}}", "").replace("{{EMAIL}}", e(S.EMAIL)).replace("{{DIRECTORY}}", directory("")).replace("{{CAROUSEL}}", carousel(""))
     layout("/", "CCTV & Network Cabling in Dubai | Mizan Will Fix It",
            "MTM Group Tech: CCTV installation, network and CCTV cabling, access control, PABX, IT support and electrical work in Dubai. WhatsApp +971 52 962 2078.",
            body, schemas=[business_schema(), {"@context": "https://schema.org", "@type": "WebSite",
@@ -581,6 +665,7 @@ def seo_check():
 def main():
     if "--publish-next" in sys.argv:
         publish_next()
+    build_gallery()
     build_home()
     for code in i18n.LANGS:
         build_home_lang(code)

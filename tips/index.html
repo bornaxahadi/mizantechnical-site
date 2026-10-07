@@ -36,6 +36,7 @@
     <nav class="nav" aria-label="Main">
       <a href="../#services">Services</a>
       <a href="../#areas">Areas</a>
+      <a href="../gallery/">Work</a>
       <a href="../tips/">Tips</a>
       <a href="../#request">Hire Mizan</a>
     </nav>
@@ -80,6 +81,7 @@
       <div>
         <h4>Links</h4>
         <ul>
+          <li><a href="../gallery/">Work gallery</a></li>
           <li><a href="../tips/">Tips &amp; guides</a></li>
           <li><a href="https://www.google.com/maps/search/?api=1&query=MTM%20Group%20Tech%2C%20Al%20Fahidi%2C%20Dubai" target="_blank" rel="noopener">Google Maps</a></li>
           <li><a href="https://search.google.com/local/writereview?placeid=ChIJ247zSdJpXz4RwjRNSPeqTOw" target="_blank" rel="noopener">Leave a Google review</a></li>
@@ -123,6 +125,12 @@
           problem:v('r-msg'),when:w?w.value:'',page:location.href})});}catch(err){}
     });
   }
+  [].forEach.call(document.querySelectorAll('.car'),function(c){
+    var t=c.querySelector('.car-track'),rtl=getComputedStyle(c).direction==='rtl';
+    function go(d){t.scrollBy({left:d*(rtl?-1:1)*t.clientWidth*0.9,behavior:'smooth'})}
+    c.querySelector('.prev').addEventListener('click',function(){go(-1)});
+    c.querySelector('.next').addEventListener('click',function(){go(1)});
+  });
   var y=document.getElementById('yr');if(y)y.textContent=new Date().getFullYear();
 })();
 </script>
